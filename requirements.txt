@@ -7,3 +7,4 @@ streamlit==1.31.1
 sentence-transformers==2.2.2
 faiss-cpu==1.7.4
 huggingface-hub==0.20.3
+InstructorEmbedding==1.0.1
