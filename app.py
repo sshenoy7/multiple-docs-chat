@@ -48,12 +48,6 @@ def get_conversation_chain(vectorstore):
     return conversation_chain
 
 def handle_user_input(user_question):
-    if st.session_state.conversation is None:
-        print('Whaatt??')
-    
-    if user_question is None:
-        print('Ask something')
-
     response = st.session_state.conversation({'question': user_question})
     st.session_state.chat_history = response['chat_history']
 
@@ -73,12 +67,10 @@ def main():
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = None
     st.header("Ask me anything you taught me!! :books:")
-    user_question = st.text_input("Ask Me:")
+    user_question = st.text_input("Your Query:")
 
     if user_question:
         handle_user_input(user_question)
-    st.write(user_template.replace("{{MSG}}", "Hello, robot!"), unsafe_allow_html=True)
-    st.write(bot_template.replace("{{MSG}}", "Hello, Human!"), unsafe_allow_html=True)
 
     with st.sidebar:
         st.subheader("You've taught me these")
@@ -98,7 +90,7 @@ def main():
                 vectorstore = get_vectorstore(text_chunks)
                 
                 st.session_state.conversation = get_conversation_chain(vectorstore)
-                st.write('Let the conversation begin...')
+                st.write("Let your conversation begin...")
 
 
 
