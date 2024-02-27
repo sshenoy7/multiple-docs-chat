@@ -76,7 +76,7 @@ def get_text_chunks(raw_text):
     return chunks
 
 def get_vectorstore(text_chunks):
-    embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl")
+    embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-base")
     vectorstore = faiss.FAISS.from_texts(texts=text_chunks, embedding=embeddings)
     
     return vectorstore
