@@ -7,7 +7,7 @@ from langchain_community.vectorstores import faiss
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from langchain_openai import ChatOpenAI
-from htmlTemplates import bot_template, user_template
+from htmlTemplates import css, bot_template, user_template
 import textract
 import os
 from docx import Document
@@ -106,6 +106,7 @@ def main():
     load_dotenv()
 
     st.set_page_config(page_title="Know your books", page_icon=":books:")
+    st.write(css, unsafe_allow_html=True)
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
 
