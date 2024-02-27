@@ -8,15 +8,60 @@ from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from langchain_openai import ChatOpenAI
 from htmlTemplates import bot_template, user_template
+import textract
+import os
+from docx import Document
+import io
 
-
-
-def get_text_from_uploaded_pdfs(uploaded_pdfs):
+def get_text_from_uploaded_documents(uploaded_docs):
     text = ""
-    for pdf in uploaded_pdfs:
-        pdf_reader = PdfReader(pdf)
-        for page in pdf_reader.pages:
-            text += page.extract_text()
+    for doc in uploaded_docs:
+        _, ext = os.path.splitext(doc.name)
+        try:
+            text += extract_text_from_other(doc, ext)
+        except Exception as e:
+            print(f"Something went wrong while processing {doc}, falling back to extension-specific libraries. Error: {e}")
+            if ext == ".pdf":
+                text += extract_text_from_pdf(doc)
+            elif ext == ".docx":
+                text += extract_text_from_docx(doc)
+            # elif ext == ".rtf":
+            #     text += extract_text_from_rtf(doc)
+    return text
+
+## NOT Supported
+# def extract_text_from_rtf(rtf_file):
+#     # Read the RTF file and extract plain text
+#     doc = rtf_file.read()
+
+#     # Extract plain text
+#     text = plain_text(doc)
+
+#     return text
+
+def extract_text_from_pdf(pdf_file):
+    pdf_text = ""
+    pdf_reader = PdfReader(pdf_file)
+    for page in pdf_reader.pages:
+        pdf_text += page.extract_text()
+    return pdf_text
+
+def extract_text_from_docx(docx_file):
+    docx_text = ""
+    # Create a Document object from the content
+    docx = Document(docx_file)
+    # Extract text from the Document object
+    for para in docx.paragraphs:
+        docx_text += para.text + "\n"
+    return docx_text
+
+def extract_text_from_other(other_file, extension):
+    if extension in [".rtf", ".docx", ".pdf"]:
+        raise ValueError(f"{extension} is not fully-supported by textract")
+    # Read the content of the uploaded file
+    content = other_file.read()
+    # Decode the content as UTF-8
+    text = content.decode("utf-8")
     return text
 
 def get_text_chunks(raw_text):
@@ -74,14 +119,14 @@ def main():
 
     with st.sidebar:
         st.subheader("You've taught me these")
-        uploaded_pdfs = st.file_uploader(
+        uploaded_docs = st.file_uploader(
             "Teach me stuff",
             accept_multiple_files=True
         )
         if st.button("Learn"):
             with st.spinner("Processing..."):
-                # get pdf text 
-                raw_text = get_text_from_uploaded_pdfs(uploaded_pdfs)
+                # get doc text
+                raw_text = get_text_from_uploaded_documents(uploaded_docs)
 
                 # get the text chunks
                 text_chunks = get_text_chunks(raw_text)
