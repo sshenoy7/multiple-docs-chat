@@ -29,7 +29,7 @@ def chat_with_documents(chat_option_form):
         )
         read_document = st.button("Read Book")
         if read_document:
-            with st.spinner("Processing..."):
+            with st.spinner("Reading book..."):
                 # get doc text
                 raw_text = get_text_from_uploaded_documents(uploaded_docs)
 
@@ -49,7 +49,7 @@ def chat_with_website():
         read_website = st.button("Read Blog")
         if read_website:
             if url_to_learn:
-                with st.spinner("Processing..."):
+                with st.spinner("Reading website..."):
                     if "vector_store" not in st.session_state:
                         st.session_state.vector_store = get_vectorstore_from_url(url_to_learn)
                     
@@ -83,7 +83,9 @@ def handle_user_input_for_website(user_question):
     st.session_state.website_chat_history.append(AIMessage(content=response['answer']))
 
     for i, message in enumerate(st.session_state.website_chat_history):
-        if i % 1 == 0:
+        if i == 0:
+            continue
+        elif i % 2 == 1:
             st.write(user_template.replace("{{MSG}}", message.content), unsafe_allow_html=True)
         else:
             st.write(bot_template.replace("{{MSG}}", message.content), unsafe_allow_html=True)
@@ -118,7 +120,7 @@ def main():
     with st.sidebar:
         chat_option_form = st.form("chat_options")
         mode = chat_option_form.radio("What do you want to chat with?", ("Chat with Documents", "Chat with Website", "Chat with Database"))
-        submitted = chat_option_form.form_submit_button("Let's Chat", on_click=clear)
+        submitted = chat_option_form.form_submit_button("Let's Train!")
     
     if mode == "Chat with Documents":
         chat_with_documents(chat_option_form)
